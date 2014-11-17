@@ -1,0 +1,158 @@
+Basics ggplot2, dplyr and data.table
+========================================================
+author: Benilton Carvalho
+date: November 2014
+width: 1440
+height: 900
+
+Loading useful packages
+========================================================
+
+- The `ggplot2` package is one of the best packages for the production of high-quality plots.
+- `ggplot2` requires the data to be in a specific format, for which I use the `dplyr` package.
+- Given that these data can get very large, I also use the `data.table` package to improve data access and management.
+
+```{r pkgs}
+library(ggplot2)
+library(dplyr)
+library(data.table)
+```
+
+Reading the data
+========================================================
+
+- Reading CSV file
+- Converting the resulting data.frame into a data.table for faster manipulation
+
+```{r}
+fname = '~/Downloads/data/AirlineSubset1pct.csv'
+airline = read.csv(fname, header=TRUE)
+airline = data.table(airline)
+airline
+```
+
+
+Operating with a `data.table` object
+========================================================
+
+- A `data.table` object is pretty much a `data.frame`
+
+```{r}
+summary(airline)
+```
+
+Customizing data representation
+=========================================================
+
+- Will convert Year/Month/DayOfWeek/DayofMonth to ordered factors
+
+```{r}
+dim(airline)
+airline$Year = factor(airline$Year, ordered=TRUE)
+airline$Month = factor(airline$Month, ordered=TRUE)
+airline$DayOfWeek = factor(airline$DayOfWeek, ordered=TRUE)
+airline$DayofMonth = factor(airline$DayofMonth, ordered=TRUE)
+```
+
+Cleaning dataset
+=================
+
+- Keep only flights that were not cancelled
+
+```{r}
+airline = subset(airline, Cancelled==0)
+dim(airline)
+```
+
+Making histograms
+========================================================
+
+- `ggplot2` requires data in the long-format
+- always use `ggplot` to start and combine `aes()` to define plot details (x, y, color)
+- always use a `geom_` to define plot type
+
+```{r}
+myp = ggplot(airline, aes(ArrDelay)) + geom_histogram(binwidth=1)
+myp + xlim(-60, 60)
+```
+
+Making stratified density plots - I
+========================================================
+
+```{r}
+myp = ggplot(airline, aes(ArrDelay)) + geom_density() 
+myp + facet_grid(DayOfWeek ~ . ) + xlim(-100, 100)
+```
+
+
+Making stratified density plots - II
+========================================================
+
+```{r}
+myp = ggplot(airline, aes(ArrDelay, colour=DayOfWeek))
+myp + geom_density() + xlim(-100, 100)
+```
+
+Operating with `data.table` for plotting
+========================================================
+
+- Proportion of flights delayed (by more than 15min) per date
+
+```{r}
+tmp = group_by(airline, Year, Month, DayofMonth)
+delays = summarise(tmp, prop=mean(ArrDelay > 15 & !is.na(ArrDelay)))
+head(delays)
+```
+
+Helper function
+========================================================
+
+- Function to return row/column for dates as in a calendar
+
+```{r}
+library(lubridate)
+cal = function(dt){
+  year = year(dt)
+  month = month(dt)
+  day = day(dt)
+  first = ymd(paste(year, month, 1, sep='-'))
+  wday_first = wday(first)
+  offset = 5 + wday_first
+  weekrow = ((day + offset) %/% 7) - 1
+  daycol = (day + offset) %% 7
+  cbind(weekrow, daycol)
+}
+```
+
+Calendar with delays
+===============
+
+```{r}
+tmp = cal( with(delays, paste(Year, Month, DayofMonth, sep='-')))
+delays$weekrow = factor(tmp[,1], levels=5:0, ordered=TRUE)
+delays$daycol = factor(tmp[,2], levels=0:6, ordered=TRUE)
+logit = function(p) log(p/(1-p))
+head(delays)
+```
+
+Preparing the final plot
+===
+
+```{r}
+myp = ggplot(delays, aes(daycol, weekrow, fill=logit(prop)))
+myp = myp + geom_tile() + facet_grid(Month ~ Year)
+myp = myp + scale_fill_continuous(low='green', high='red')
+myp = myp + theme(axis.ticks=element_blank(),
+                  axis.title.x=element_blank(),
+                  axis.title.y=element_blank(),
+                  axis.text.x=element_blank(),
+                  axis.text.y=element_blank(),
+                  legend.position='none')
+```
+
+The final plot
+===
+
+```{r, out.width="1280px", echo=FALSE, out.height="720px"}
+myp
+```
