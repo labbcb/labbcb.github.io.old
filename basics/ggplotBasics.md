@@ -5,6 +5,18 @@ date: November 2014
 width: 1440
 height: 900
 
+Pre-requisites
+===
+To run this tutorial, you'll need:
+
+- Dataset: Subset of airline dataset (https://dl.dropboxusercontent.com/u/83643/AirlineSubset1pct.csv.gz)
+- Packages: ggplot2, dplyr, data.table and lubridate:
+
+```r
+pkgs = c('ggplot2', 'dplyr', 'data.table', 'lubridate')
+install.packages(pkgs)
+```
+
 Loading useful packages
 ========================================================
 
@@ -127,7 +139,7 @@ myp = ggplot(airline, aes(ArrDelay)) + geom_histogram(binwidth=1)
 myp + xlim(-60, 60)
 ```
 
-![plot of chunk unnamed-chunk-5](ggplotBasics-figure/unnamed-chunk-5-1.png) 
+![plot of chunk unnamed-chunk-6](ggplotBasics-figure/unnamed-chunk-6-1.png) 
 
 Making stratified density plots - I
 ========================================================
@@ -138,7 +150,7 @@ myp = ggplot(airline, aes(ArrDelay)) + geom_density()
 myp + facet_grid(DayOfWeek ~ . ) + xlim(-100, 100)
 ```
 
-![plot of chunk unnamed-chunk-6](ggplotBasics-figure/unnamed-chunk-6-1.png) 
+![plot of chunk unnamed-chunk-7](ggplotBasics-figure/unnamed-chunk-7-1.png) 
 
 
 Making stratified density plots - II
@@ -150,7 +162,7 @@ myp = ggplot(airline, aes(ArrDelay, colour=DayOfWeek))
 myp + geom_density() + xlim(-100, 100)
 ```
 
-![plot of chunk unnamed-chunk-7](ggplotBasics-figure/unnamed-chunk-7-1.png) 
+![plot of chunk unnamed-chunk-8](ggplotBasics-figure/unnamed-chunk-8-1.png) 
 
 Operating with `dplyr` for plotting
 ========================================================
@@ -244,4 +256,4 @@ myp = myp + theme(axis.ticks=element_blank(),
 The final plot
 ===
 
-<img src="ggplotBasics-figure/unnamed-chunk-12-1.png" title="plot of chunk unnamed-chunk-12" alt="plot of chunk unnamed-chunk-12" width="1280px" height="720px" />
+<img src="ggplotBasics-figure/unnamed-chunk-13-1.png" title="plot of chunk unnamed-chunk-13" alt="plot of chunk unnamed-chunk-13" width="1280px" height="720px" />

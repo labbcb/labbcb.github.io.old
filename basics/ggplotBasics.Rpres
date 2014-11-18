@@ -5,6 +5,17 @@ date: November 2014
 width: 1440
 height: 900
 
+Pre-requisites
+===
+To run this tutorial, you'll need:
+
+- Dataset: Subset of airline dataset (https://dl.dropboxusercontent.com/u/83643/AirlineSubset1pct.csv.gz)
+- Packages: ggplot2, dplyr, data.table and lubridate:
+```{r, eval=FALSE}
+pkgs = c('ggplot2', 'dplyr', 'data.table', 'lubridate')
+install.packages(pkgs)
+```
+
 Loading useful packages
 ========================================================
 
