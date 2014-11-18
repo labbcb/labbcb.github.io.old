@@ -28,7 +28,7 @@ Reading the data
 fname = '~/Downloads/data/AirlineSubset1pct.csv'
 airline = read.csv(fname, header=TRUE)
 airline = data.table(airline)
-airline
+airline[, 1:7, with=FALSE]
 ```
 
 
@@ -38,7 +38,7 @@ Operating with a `data.table` object
 - A `data.table` object is pretty much a `data.frame`
 
 ```{r}
-summary(airline)
+summary(airline[,1:7, with=FALSE])
 ```
 
 Customizing data representation
@@ -93,15 +93,15 @@ myp = ggplot(airline, aes(ArrDelay, colour=DayOfWeek))
 myp + geom_density() + xlim(-100, 100)
 ```
 
-Operating with `data.table` for plotting
+Operating with `dplyr` for plotting
 ========================================================
 
 - Proportion of flights delayed (by more than 15min) per date
 
 ```{r}
 tmp = group_by(airline, Year, Month, DayofMonth)
-delays = summarise(tmp, prop=mean(ArrDelay > 15 & !is.na(ArrDelay)))
-head(delays)
+delays = summarise(tmp, prop=mean(ArrDelay > 15, na.rm=TRUE))
+delays
 ```
 
 Helper function
